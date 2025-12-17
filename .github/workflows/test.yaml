@@ -5,19 +5,33 @@ on:
 
 jobs:
   build-arm64:
-    runs-on: macos-15
+    runs-on: macos-16
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Install Docker (Lima)
+      - name: Install Lima and Docker
         run: |
-          brew install lima
-          limactl start template://docker
+          brew install lima docker
+
+      - name: Start Lima with QEMU driver
+        run: |
+          limactl start --vm-type=qemu --arch=aarch64 --name=docker template:docker
+
+      - name: Wait for Lima to be ready
+        run: |
+          for i in {1..60}; do
+            if limactl list | grep -q "docker.*Running"; then
+              echo "Lima is ready"
+              break
+            fi
+            echo "Waiting for Lima... ($i/60)"
+            sleep 5
+          done
 
       - name: Build ARM64 container
         run: |
-          lima docker build \
+          limactl shell docker docker build \
             --platform linux/arm64 \
             --tag babyrite:arm64 \
             --file ./docker/Dockerfile \
