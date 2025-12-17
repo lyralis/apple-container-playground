@@ -5,26 +5,20 @@ on:
 
 jobs:
   build-arm64:
-    runs-on: macos-26
+    runs-on: macos-15
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Install container
-        run: brew install container
-
-      - name: Start container system service with auto-confirm
+      - name: Install Docker (Lima)
         run: |
-          yes | container system start || true
-          sleep 5
-
-      - name: Wait for service to be ready
-        run: sleep 20
+          brew install lima
+          limactl start template://docker
 
       - name: Build ARM64 container
         run: |
-          container build \
-            --arch arm64 \
+          lima docker build \
+            --platform linux/arm64 \
             --tag babyrite:arm64 \
             --file ./docker/Dockerfile \
             .
