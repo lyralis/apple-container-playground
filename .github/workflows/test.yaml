@@ -13,6 +13,12 @@ jobs:
       - name: Install container
         run: brew install container
 
+      - name: Start container system service
+        run: container system start
+
+      - name: Wait for service to be ready
+        run: sleep 20
+
       - name: Build ARM64 container
         run: |
           container build \
