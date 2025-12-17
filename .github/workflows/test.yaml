@@ -1,0 +1,22 @@
+name: Build ARM64 Container on macOS
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-arm64:
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install container
+        run: brew install container
+
+      - name: Build ARM64 container
+        run: |
+          container build \
+            --arch arm64 \
+            --tag babyrite:arm64 \
+            --file ./docker/Dockerfile \
+            .
